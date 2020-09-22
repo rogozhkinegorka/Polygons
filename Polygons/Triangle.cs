@@ -20,7 +20,7 @@ namespace Polygons
 
             graphics.FillPolygon(new SolidBrush(Shape.Color), points);
         }
-        public override bool IsInside(Point pointClick)
+        public override bool IsInside(int xx, int yy)
         {
             int x1 = x - (int)(R * Math.Sqrt(3) / 2);
             int y1 = y + R / 2;
@@ -30,10 +30,10 @@ namespace Polygons
             int y3 = y + R / 2;
 
 
-            if (pointClick.Y >= y + R / 2) return false;
+            if (yy >= y + R / 2) return false;
             else
             {
-                return pointClick.Y <= y + R / 2 && pointClick.Y >= ((pointClick.X - x1) * (y2 - y1) / (x2 - x1) + y1) && pointClick.Y >= ((pointClick.X - x3) * (y2 - y3) / (x2 - x3) + y3);
+                return yy <= y + R / 2 && yy >= ((xx - x1) * (y2 - y1) / (x2 - x1) + y1) && yy >= ((xx - x3) * (y2 - y3) / (x2 - x3) + y3);
             }
         }
     }

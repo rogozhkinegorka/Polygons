@@ -1,0 +1,9 @@
+C:\Repos\Polygons\Polygons\bin\Debug\Polygons.exe.config
+C:\Repos\Polygons\Polygons\bin\Debug\Polygons.exe
+C:\Repos\Polygons\Polygons\bin\Debug\Polygons.pdb
+C:\Repos\Polygons\Polygons\obj\Debug\Polygons.csprojAssemblyReference.cache
+C:\Repos\Polygons\Polygons\obj\Debug\Polygons.Form1.resources
+C:\Repos\Polygons\Polygons\obj\Debug\Polygons.Properties.Resources.resources
+C:\Repos\Polygons\Polygons\obj\Debug\Polygons.csproj.GenerateResource.cache
+C:\Repos\Polygons\Polygons\obj\Debug\Polygons.exe
+C:\Repos\Polygons\Polygons\obj\Debug\Polygons.pdb

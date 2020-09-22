@@ -15,10 +15,10 @@ namespace Polygons
         {
             graphics.FillRectangle(new SolidBrush(Shape.Color), x - R, y - R, (int)(2 * R / Math.Sqrt(2)), (int)(2 * R / Math.Sqrt(2)));
         }
-        public override bool IsInside(Point pointClick)
+        public override bool IsInside(int x1, int y1)
         {
             double a = R / Math.Sqrt(2);
-            return (pointClick.X <= x + a && pointClick.X >= x - a && pointClick.Y >= y - a && pointClick.Y <= y + a);
+            return (x1 <= x + a && x1 >= x - a && y1 >= y - a && y1 <= y + a);
         }
     }
 }

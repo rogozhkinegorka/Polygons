@@ -11,18 +11,22 @@ namespace Polygons
     {
         protected static int R;
         protected static Color Color;
-        protected int x, y;
+        protected int x, y, dx, dy;
+        protected bool isMoving;
         public Shape(int x, int y)
         {
             this.x = x;
             this.y = y;
+            dx = 0;
+            dy = 0;
+            isMoving = false;
         }
         static Shape()
         {
-            R = 10;
+            R = 50;
             Color = Color.Blue;
         }
         public abstract void Draw(Graphics graphics);
-        public abstract bool IsInside(Point pointClick);
+        public abstract bool IsInside(int x1, int y1);
     }
 }

@@ -13,11 +13,11 @@ namespace Polygons
         { }
         public override void Draw(Graphics graphics)
         {
-            graphics.FillEllipse(new SolidBrush(Shape.Color), x, y, R, R);
+            graphics.FillEllipse(new SolidBrush(Shape.Color), x-R, y-R, 2*R, 2*R);
         }
-        public override bool IsInside(Point pointClick)
+        public override bool IsInside(int x1, int y1)
         {
-            return R >= Math.Sqrt(Math.Pow(x - pointClick.X, 2) + Math.Pow(y - pointClick.Y, 2));
+            return R >= Math.Sqrt(Math.Pow(x - x1, 2) + Math.Pow(y - y1, 2));
         }
     }
 }
