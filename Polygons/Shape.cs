@@ -26,6 +26,14 @@ namespace Polygons
             R = 50;
             Color = Color.Blue;
         }
+        public bool IsMoving { get { return isMoving; }  set { isMoving = value; } }
+        public int X { get { return x; } set { x = value; } }
+        public int Y { get { return y; } set { y = value; } }
+        public int Dx { get { return dx; } set { dx = value; } }
+        public int Dy { get { return dy; } set { dy = value; } }
+
+
+
         public abstract void Draw(Graphics graphics);
         public abstract bool IsInside(int x1, int y1);
     }
