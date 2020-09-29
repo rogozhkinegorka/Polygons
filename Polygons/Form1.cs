@@ -12,13 +12,14 @@ namespace Polygons
 {
     public partial class Form1 : Form
     {
-        bool isClick = true;
+        enum PShape { C, S, T }
+        PShape pointShape = PShape.C;
+        bool isNotInside;
         List<Shape> Points = new List<Shape>();
         public Form1()
         {
             DoubleBuffered = true;
             InitializeComponent();
-            Shape[] tops;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -26,58 +27,78 @@ namespace Polygons
 
         }
 
-        private void Form1_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (isClick)
-            {
-                if ((e.Button & MouseButtons.Right) == 0)
-                    Points.Add(new Triangle(e.X, e.Y));
-                else
-                {
-                    for (int i = Points.Count - 1; i >= 0; i--)
-                    {
-                        if (Points[i].IsInside(e.X, e.Y))
-                        {
-                            Points.RemoveAt(i);
-                            break;
-                        }
-                    }
-                }
-                this.Invalidate();
-            }
-        }
-
-
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
+            double k;
+            double b;
+            int upPoints;
             foreach (var i in Points)
             {
                 i.Draw(e.Graphics);
             }
-        }
 
-        private void Form1_MouseDown(object sender, MouseEventArgs e)
-        {
-            for (int i = 0; i < Points.Count; i++)
+            for(int i = 0; i < Points.Count; i++)
             {
-                if (Points[i].IsInside(e.X, e.Y))
+                for(int j = i+1; j < Points.Count; j++)
                 {
-                    if(e.Button == MouseButtons.Left) isClick = false;
-                    Points[i].IsMoving = true;
-                    Points[i].Dx = Points[i].X - e.X;
-                    Points[i].Dy = Points[i].Y - e.Y;
+                    k = (Points[i].Y - Points[j].Y) / (Points[i].X - Points[j].X);
+                    b = Points[i].Y - k * Points[i].X;
+                    upPoints = 0;
+                    for (int z = 0; z < Points.Count; z++)
+                    {
+                        if (z == j || z == i) z++;
+                        if (Points[z].Y > k * Points[z].X + b) upPoints++;
+                    }
+                    if (upPoints == 0 || upPoints == Points.Count - 2) e.Graphics.DrawLine(new Pen(Color.Red), Points[i].X, Points[i].Y, Points[j].X, Points[j].Y);
                 }
             }
+
+
+
+        }
+
+        private void Form1_MouseClick(object sender, MouseEventArgs e)
+        {
+
+        }
+        private void Form1_MouseDown(object sender, MouseEventArgs e)
+        {
+            isNotInside = true;
+            for (int j = Points.Count - 1; j >= 0; j--)
+            {
+                if (Points[j].IsInside(e.X, e.Y))
+                {
+                    isNotInside = false;
+                    if ((e.Button & MouseButtons.Right) == 0)
+                    {
+                        Points[j].IsMoving = true;
+                        Points[j].Dx = Points[j].X - e.X;
+                        Points[j].Dy = Points[j].Y - e.Y;
+                    }
+                    else
+                    {
+                        Points.RemoveAt(j);
+                        break;
+                    }
+                }
+            }
+            if ((e.Button & MouseButtons.Right) == 0 && isNotInside)
+            {
+                if (pointShape == PShape.C) Points.Add(new Circle(e.X, e.Y));
+                if (pointShape == PShape.S) Points.Add(new Square(e.X, e.Y));
+                if (pointShape == PShape.T) Points.Add(new Triangle(e.X, e.Y));
+            }
+            this.Invalidate();
         }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
-            for (int i = 0; i < Points.Count; i++)
+            foreach (var i in Points)
             {
-                if (Points[i].IsMoving)
+                if (i.IsMoving)
                 {
-                    Points[i].X = e.X + Points[i].Dx;
-                    Points[i].Y = e.Y + Points[i].Dy;
+                    i.X = e.X + i.Dx;
+                    i.Y = e.Y + i.Dy;
                 }
             }
             this.Invalidate();
@@ -85,13 +106,36 @@ namespace Polygons
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
-            isClick = true;
-            for (int i = 0; i < Points.Count; i++)
+            foreach (var i in Points)
             {
-                Points[i].IsMoving = false;
-                Points[i].Dx = 0;
-                Points[i].Dy = 0;
+                i.IsMoving = false;
+                i.Dx = 0;
+                i.Dy = 0;
             }
+        }
+
+        private void circleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            pointShape = PShape.C;
+            circleToolStripMenuItem.Checked = true;
+            squareToolStripMenuItem.Checked = false;
+            triangleToolStripMenuItem.Checked = false;
+        }
+
+        private void squareToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            pointShape = PShape.S;
+            circleToolStripMenuItem.Checked = false;
+            squareToolStripMenuItem.Checked = true;
+            triangleToolStripMenuItem.Checked = false;
+        }
+
+        private void triangleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            pointShape = PShape.T;
+            circleToolStripMenuItem.Checked = false;
+            squareToolStripMenuItem.Checked = false;
+            triangleToolStripMenuItem.Checked = true;
         }
     }
 }
