@@ -13,8 +13,10 @@ namespace Polygons
     public partial class Form1 : Form
     {
         enum PShape { C, S, T }
+        enum Algoritm { byDefinition, Jarvis }
         PShape pointShape = PShape.C;
         bool isNotInside;
+        Algoritm convexHull = Algoritm.byDefinition;
         List<Shape> Points = new List<Shape>();
         public Form1()
         {
@@ -32,29 +34,88 @@ namespace Polygons
             double k;
             double b;
             int upPoints;
+            if (Points.Count >= 3)
+            {
+                if (convexHull == Algoritm.byDefinition)
+                {
+                    //Алгоритм по определению
+                    foreach (var i in Points)
+                    {
+                        i.IsNotInside = false;
+                    }
+                    for (int i = 0; i < Points.Count; i++)
+                    {
+                        for (int j = i + 1; j < Points.Count; j++)
+                        {
+                            upPoints = 0;
+                            if (Points[i].X == Points[j].X)
+                            {
+                                for (int z = 0; z < Points.Count; z++)
+                                {
+                                    if (z != i && z != j)
+                                    {
+                                        if (Points[z].X > Points[i].X) upPoints++;
+                                    }
+                                }
+                            }
+                            else
+                            {
+
+                                k = ((double)Points[i].Y - Points[j].Y) / (Points[i].X - Points[j].X);
+                                b = Points[i].Y - k * Points[i].X;
+                                for (int z = 0; z < Points.Count; z++)
+                                {
+                                    if (z != i && z != j)
+                                    {
+                                        if (Points[z].Y > k * Points[z].X + b) upPoints++;
+                                    }
+                                }
+                            }
+                            if (upPoints == 0 || upPoints == Points.Count - 2)
+                            {
+                                e.Graphics.DrawLine(new Pen(Color.Red), Points[i].X, Points[i].Y, Points[j].X, Points[j].Y);
+                                Points[i].IsNotInside = true;
+                                Points[j].IsNotInside = true;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //Алгоритм Джарвиса
+                    Shape A = Points[0];
+                    foreach(var i in Points)
+                    {
+                        if (i.Y > A.Y)
+                            A = i;
+                        if (i.Y == A.Y)
+                            if (i.X < A.X)
+                                A = i;
+                    }
+                    Circle M = new Circle(A.X - 10, A.Y);
+                    double minCos = -1;
+                    Shape P;
+                    double cos;
+                    foreach(var i in Points)
+                    {
+                        if(i!=A)
+                        {
+                            cos = 1;
+                            if (cos < minCos)
+                            {
+                                minCos = cos;
+                                P = i;
+                            }
+                        }
+                    }
+                    
+
+                }
+            }
             foreach (var i in Points)
             {
                 i.Draw(e.Graphics);
             }
-
-            for(int i = 0; i < Points.Count; i++)
-            {
-                for(int j = i+1; j < Points.Count; j++)
-                {
-                    k = (Points[i].Y - Points[j].Y) / (Points[i].X - Points[j].X);
-                    b = Points[i].Y - k * Points[i].X;
-                    upPoints = 0;
-                    for (int z = 0; z < Points.Count; z++)
-                    {
-                        if (z == j || z == i) z++;
-                        if (Points[z].Y > k * Points[z].X + b) upPoints++;
-                    }
-                    if (upPoints == 0 || upPoints == Points.Count - 2) e.Graphics.DrawLine(new Pen(Color.Red), Points[i].X, Points[i].Y, Points[j].X, Points[j].Y);
-                }
-            }
-
-
-
         }
 
         private void Form1_MouseClick(object sender, MouseEventArgs e)
@@ -111,6 +172,14 @@ namespace Polygons
                 i.IsMoving = false;
                 i.Dx = 0;
                 i.Dy = 0;
+            }
+            for (int i = 0; i < Points.Count; ++i)
+            {
+                if (!Points[i].IsNotInside)
+                {
+                    Points.RemoveAt(i);
+                    --i;
+                }
             }
         }
 

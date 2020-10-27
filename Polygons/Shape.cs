@@ -12,7 +12,7 @@ namespace Polygons
         protected static int R;
         protected static Color Color;
         protected int x, y, dx, dy;
-        protected bool isMoving;
+        protected bool isMoving, isNotInside;
         public Shape(int x, int y)
         {
             this.x = x;
@@ -20,12 +20,14 @@ namespace Polygons
             dx = 0;
             dy = 0;
             isMoving = false;
+            isNotInside = true;
         }
         static Shape()
         {
-            R = 50;
+            R = 20;
             Color = Color.Blue;
         }
+        public bool IsNotInside { get { return isNotInside; } set { isNotInside = value; } }
         public bool IsMoving { get { return isMoving; }  set { isMoving = value; } }
         public int X { get { return x; } set { x = value; } }
         public int Y { get { return y; } set { y = value; } }
