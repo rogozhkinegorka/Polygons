@@ -16,7 +16,7 @@ namespace Polygons
         enum Algoritm { byDefinition, Jarvis }
         PShape pointShape = PShape.C;
         bool isNotInside;
-        Algoritm convexHull = Algoritm.byDefinition;
+        Algoritm convexHull = Algoritm.Jarvis;
         List<Shape> Points = new List<Shape>();
         public Form1()
         {
@@ -83,6 +83,10 @@ namespace Polygons
                 else
                 {
                     //Алгоритм Джарвиса
+                    foreach (var i in Points)
+                    {
+                        i.IsNotInside = false;
+                    }
                     Shape A = Points[0];
                     foreach(var i in Points)
                     {
@@ -92,15 +96,25 @@ namespace Polygons
                             if (i.X < A.X)
                                 A = i;
                     }
-                    Circle M = new Circle(A.X - 10, A.Y);
-                    double minCos = -1;
+                    //e.Graphics.FillEllipse(new SolidBrush(Color.Red), A.X - 20, A.Y - 20, 2 * 25, 2 * 25);
+                    Shape F = A;
+                    Shape M = new Circle(A.X - 10, A.Y);
+                    double minCos = 1;
                     Shape P;
+                    if (Points[0] == A)
+                        P = Points[1];
+                    else
+                        P = Points[0];
                     double cos;
-                    foreach(var i in Points)
+                    foreach (var i in Points)
                     {
-                        if(i!=A)
+                        if (i != A && i != M)
                         {
-                            cos = 1;
+                            double aX = M.X - A.X;
+                            double bX = i.X - A.X;
+                            double aY = M.Y - A.Y;
+                            double bY = i.Y - A.Y;
+                            cos = (aX * bX + aY * bY) / (Math.Sqrt(aX * aX + aY * aY) * Math.Sqrt(bX * bX + bY * bY));
                             if (cos < minCos)
                             {
                                 minCos = cos;
@@ -108,8 +122,39 @@ namespace Polygons
                             }
                         }
                     }
-                    
-
+                    e.Graphics.DrawLine(new Pen(Color.Red), A.X, A.Y, P.X, P.Y);
+                    M = A;
+                    A = P;
+                    while (P != F) 
+                    {
+                        minCos = 1;
+                        if (Points[0] == A)
+                            P = Points[1];
+                        else
+                            P = Points[0];
+                        foreach (var i in Points)
+                        {
+                            if (i != A && i != M)
+                            {
+                                double aX = M.X - A.X;
+                                double bX = i.X - A.X;
+                                double aY = M.Y - A.Y;
+                                double bY = i.Y - A.Y;
+                                cos = (aX * bX + aY * bY) / (Math.Sqrt(aX * aX + aY * aY) * Math.Sqrt(bX * bX + bY * bY));
+                                if (cos < minCos)
+                                {
+                                    minCos = cos;
+                                    P = i;
+                                }
+                            }
+                        }
+                        e.Graphics.DrawLine(new Pen(Color.Red), A.X, A.Y, P.X, P.Y);
+                        A.IsNotInside = true;
+                        P.IsNotInside = true;
+                        M = A;
+                        A = P;
+                    }
+                   
                 }
             }
             foreach (var i in Points)
