@@ -28,133 +28,139 @@ namespace Polygons
         {
 
         }
-
-        private void Form1_Paint(object sender, PaintEventArgs e)
+        void ByDefinition(List<Shape> Points, Graphics graphics)
         {
+            //Алгоритм по определению
             double k;
             double b;
             int upPoints;
+            foreach (var i in Points)
+            {
+                i.IsNotInside = false;
+            }
+            for (int i = 0; i < Points.Count; i++)
+            {
+                for (int j = i + 1; j < Points.Count; j++)
+                {
+                    upPoints = 0;
+                    if (Points[i].X == Points[j].X)
+                    {
+                        for (int z = 0; z < Points.Count; z++)
+                        {
+                            if (z != i && z != j)
+                            {
+                                if (Points[z].X > Points[i].X) upPoints++;
+                            }
+                        }
+                    }
+                    else
+                    {
+
+                        k = ((double)Points[i].Y - Points[j].Y) / (Points[i].X - Points[j].X);
+                        b = Points[i].Y - k * Points[i].X;
+                        for (int z = 0; z < Points.Count; z++)
+                        {
+                            if (z != i && z != j)
+                            {
+                                if (Points[z].Y > k * Points[z].X + b) upPoints++;
+                            }
+                        }
+                    }
+                    if (upPoints == 0 || upPoints == Points.Count - 2)
+                    {
+                        graphics.DrawLine(new Pen(Color.Red), Points[i].X, Points[i].Y, Points[j].X, Points[j].Y);
+                        Points[i].IsNotInside = true;
+                        Points[j].IsNotInside = true;
+                    }
+                }
+            }
+        } 
+        void Jarvis (List<Shape> Points, Graphics graphics, bool draw)
+        {
+            //Алгоритм Джарвиса
+            foreach (var i in Points)
+            {
+                i.IsNotInside = false;
+            }
+            Shape A = Points[0];
+            foreach (var i in Points)
+            {
+                if (i.Y > A.Y)
+                    A = i;
+                if (i.Y == A.Y)
+                    if (i.X < A.X)
+                        A = i;
+            }
+            //e.Graphics.FillEllipse(new SolidBrush(Color.Red), A.X - 20, A.Y - 20, 2 * 25, 2 * 25);
+            Shape F = A;
+            Shape M = new Circle(A.X - 10, A.Y);
+            double minCos = 1;
+            Shape P;
+            if (Points[0] == A)
+                P = Points[1];
+            else
+                P = Points[0];
+            double cos;
+            foreach (var i in Points)
+            {
+                if (i != A && i != M)
+                {
+                    double aX = M.X - A.X;
+                    double bX = i.X - A.X;
+                    double aY = M.Y - A.Y;
+                    double bY = i.Y - A.Y;
+                    cos = (aX * bX + aY * bY) / (Math.Sqrt(aX * aX + aY * aY) * Math.Sqrt(bX * bX + bY * bY));
+                    if (cos < minCos)
+                    {
+                        minCos = cos;
+                        P = i;
+                    }
+                }
+            }
+            if(draw) graphics.DrawLine(new Pen(Color.Red), A.X, A.Y, P.X, P.Y);
+            M = A;
+            A = P;
+            while (P != F)
+            {
+                minCos = 1;
+                if (Points[0] == A)
+                    P = Points[1];
+                else
+                    P = Points[0];
+                foreach (var i in Points)
+                {
+                    if (i != A && i != M)
+                    {
+                        double aX = M.X - A.X;
+                        double bX = i.X - A.X;
+                        double aY = M.Y - A.Y;
+                        double bY = i.Y - A.Y;
+                        cos = (aX * bX + aY * bY) / (Math.Sqrt(aX * aX + aY * aY) * Math.Sqrt(bX * bX + bY * bY));
+                        if (cos < minCos)
+                        {
+                            minCos = cos;
+                            P = i;
+                        }
+                    }
+                }
+                if(draw) graphics.DrawLine(new Pen(Color.Red), A.X, A.Y, P.X, P.Y);
+                A.IsNotInside = true;
+                P.IsNotInside = true;
+                M = A;
+                A = P;
+            }
+        }
+        private void Form1_Paint(object sender, PaintEventArgs e)
+        {
             if (Points.Count >= 3)
             {
                 if (convexHull == Algoritm.byDefinition)
                 {
-                    //Алгоритм по определению
-                    foreach (var i in Points)
-                    {
-                        i.IsNotInside = false;
-                    }
-                    for (int i = 0; i < Points.Count; i++)
-                    {
-                        for (int j = i + 1; j < Points.Count; j++)
-                        {
-                            upPoints = 0;
-                            if (Points[i].X == Points[j].X)
-                            {
-                                for (int z = 0; z < Points.Count; z++)
-                                {
-                                    if (z != i && z != j)
-                                    {
-                                        if (Points[z].X > Points[i].X) upPoints++;
-                                    }
-                                }
-                            }
-                            else
-                            {
-
-                                k = ((double)Points[i].Y - Points[j].Y) / (Points[i].X - Points[j].X);
-                                b = Points[i].Y - k * Points[i].X;
-                                for (int z = 0; z < Points.Count; z++)
-                                {
-                                    if (z != i && z != j)
-                                    {
-                                        if (Points[z].Y > k * Points[z].X + b) upPoints++;
-                                    }
-                                }
-                            }
-                            if (upPoints == 0 || upPoints == Points.Count - 2)
-                            {
-                                e.Graphics.DrawLine(new Pen(Color.Red), Points[i].X, Points[i].Y, Points[j].X, Points[j].Y);
-                                Points[i].IsNotInside = true;
-                                Points[j].IsNotInside = true;
-                            }
-                        }
-                    }
+                    ByDefinition(Points, e.Graphics);
                 }
                 else
                 {
-                    //Алгоритм Джарвиса
-                    foreach (var i in Points)
-                    {
-                        i.IsNotInside = false;
-                    }
-                    Shape A = Points[0];
-                    foreach(var i in Points)
-                    {
-                        if (i.Y > A.Y)
-                            A = i;
-                        if (i.Y == A.Y)
-                            if (i.X < A.X)
-                                A = i;
-                    }
-                    //e.Graphics.FillEllipse(new SolidBrush(Color.Red), A.X - 20, A.Y - 20, 2 * 25, 2 * 25);
-                    Shape F = A;
-                    Shape M = new Circle(A.X - 10, A.Y);
-                    double minCos = 1;
-                    Shape P;
-                    if (Points[0] == A)
-                        P = Points[1];
-                    else
-                        P = Points[0];
-                    double cos;
-                    foreach (var i in Points)
-                    {
-                        if (i != A && i != M)
-                        {
-                            double aX = M.X - A.X;
-                            double bX = i.X - A.X;
-                            double aY = M.Y - A.Y;
-                            double bY = i.Y - A.Y;
-                            cos = (aX * bX + aY * bY) / (Math.Sqrt(aX * aX + aY * aY) * Math.Sqrt(bX * bX + bY * bY));
-                            if (cos < minCos)
-                            {
-                                minCos = cos;
-                                P = i;
-                            }
-                        }
-                    }
-                    e.Graphics.DrawLine(new Pen(Color.Red), A.X, A.Y, P.X, P.Y);
-                    M = A;
-                    A = P;
-                    while (P != F) 
-                    {
-                        minCos = 1;
-                        if (Points[0] == A)
-                            P = Points[1];
-                        else
-                            P = Points[0];
-                        foreach (var i in Points)
-                        {
-                            if (i != A && i != M)
-                            {
-                                double aX = M.X - A.X;
-                                double bX = i.X - A.X;
-                                double aY = M.Y - A.Y;
-                                double bY = i.Y - A.Y;
-                                cos = (aX * bX + aY * bY) / (Math.Sqrt(aX * aX + aY * aY) * Math.Sqrt(bX * bX + bY * bY));
-                                if (cos < minCos)
-                                {
-                                    minCos = cos;
-                                    P = i;
-                                }
-                            }
-                        }
-                        e.Graphics.DrawLine(new Pen(Color.Red), A.X, A.Y, P.X, P.Y);
-                        A.IsNotInside = true;
-                        P.IsNotInside = true;
-                        M = A;
-                        A = P;
-                    }
-                   
+                    Jarvis(Points, e.Graphics, true);
                 }
             }
             foreach (var i in Points)
@@ -190,9 +196,106 @@ namespace Polygons
             }
             if ((e.Button & MouseButtons.Right) == 0 && isNotInside)
             {
-                if (pointShape == PShape.C) Points.Add(new Circle(e.X, e.Y));
-                if (pointShape == PShape.S) Points.Add(new Square(e.X, e.Y));
-                if (pointShape == PShape.T) Points.Add(new Triangle(e.X, e.Y));
+                bool move = false;
+                if (Points.Count >= 3)
+                {
+                    List<Shape> Points2 = new List<Shape>(Points);
+                    Points2.Add(new Circle(e.X, e.Y));
+
+                    //Алгоритм Джарвиса
+                    foreach (var i in Points2)
+                    {
+                        i.IsNotInside = false;
+                    }
+                    Shape A = Points2[0];
+                    foreach (var i in Points2)
+                    {
+                        if (i.Y > A.Y)
+                            A = i;
+                        if (i.Y == A.Y)
+                            if (i.X < A.X)
+                                A = i;
+                    }
+                    Shape F = A;
+                    Shape M = new Circle(A.X - 10, A.Y);
+                    double minCos = 1;
+                    Shape P;
+                    if (Points2[0] == A)
+                        P = Points2[1];
+                    else
+                        P = Points2[0];
+                    double cos;
+                    foreach (var i in Points2)
+                    {
+                        if (i != A && i != M)
+                        {
+                            double aX = M.X - A.X;
+                            double bX = i.X - A.X;
+                            double aY = M.Y - A.Y;
+                            double bY = i.Y - A.Y;
+                            cos = (aX * bX + aY * bY) / (Math.Sqrt(aX * aX + aY * aY) * Math.Sqrt(bX * bX + bY * bY));
+                            if (cos < minCos)
+                            {
+                                minCos = cos;
+                                P = i;
+                            }
+                        }
+                    }
+                    M = A;
+                    A = P;
+                    while (P != F)
+                    {
+                        minCos = 1;
+                        if (Points2[0] == A)
+                            P = Points2[1];
+                        else
+                            P = Points2[0];
+                        foreach (var i in Points2)
+                        {
+                            if (i != A && i != M)
+                            {
+                                double aX = M.X - A.X;
+                                double bX = i.X - A.X;
+                                double aY = M.Y - A.Y;
+                                double bY = i.Y - A.Y;
+                                cos = (aX * bX + aY * bY) / (Math.Sqrt(aX * aX + aY * aY) * Math.Sqrt(bX * bX + bY * bY));
+                                if (cos < minCos)
+                                {
+                                    minCos = cos;
+                                    P = i;
+                                }
+                            }
+                        }
+                        A.IsNotInside = true;
+                        P.IsNotInside = true;
+                        M = A;
+                        A = P;
+                    }
+                    for (int i = 0; i < Points2.Count; ++i)
+                    {
+                        if (!Points2[i].IsNotInside)
+                        {
+                            Points2.RemoveAt(i);
+                            --i;
+                        }
+                    }
+                    move = Points.SequenceEqual(Points2);
+                    if (move)
+                    {
+                        for (int j = 0; j < Points.Count(); ++j)
+                        {
+                            Points[j].IsMoving = true;
+                            Points[j].Dx = Points[j].X - e.X;
+                            Points[j].Dy = Points[j].Y - e.Y;
+                        }
+                    }
+                }
+                if(!move)
+                {
+                    if (pointShape == PShape.C) Points.Add(new Circle(e.X, e.Y));
+                    if (pointShape == PShape.S) Points.Add(new Square(e.X, e.Y));
+                    if (pointShape == PShape.T) Points.Add(new Triangle(e.X, e.Y));
+                }
             }
             this.Invalidate();
         }
@@ -250,6 +353,127 @@ namespace Polygons
             circleToolStripMenuItem.Checked = false;
             squareToolStripMenuItem.Checked = false;
             triangleToolStripMenuItem.Checked = true;
+        }
+
+        private void comparison_Click(object sender, EventArgs e)
+        {
+            if (Points.Count >= 3)
+            {
+                //Алгоритм по определению
+                double k;
+                double b;
+                int upPoints;
+                foreach (var i in Points)
+                {
+                    i.IsNotInside = false;
+                }
+                for (int i = 0; i < Points.Count; i++)
+                {
+                    for (int j = i + 1; j < Points.Count; j++)
+                    {
+                        upPoints = 0;
+                        if (Points[i].X == Points[j].X)
+                        {
+                            for (int z = 0; z < Points.Count; z++)
+                            {
+                                if (z != i && z != j)
+                                {
+                                    if (Points[z].X > Points[i].X) upPoints++;
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                            k = ((double)Points[i].Y - Points[j].Y) / (Points[i].X - Points[j].X);
+                            b = Points[i].Y - k * Points[i].X;
+                            for (int z = 0; z < Points.Count; z++)
+                            {
+                                if (z != i && z != j)
+                                {
+                                    if (Points[z].Y > k * Points[z].X + b) upPoints++;
+                                }
+                            }
+                        }
+                        if (upPoints == 0 || upPoints == Points.Count - 2)
+                        {
+                            Points[i].IsNotInside = true;
+                            Points[j].IsNotInside = true;
+                        }
+                    }
+                }
+                
+              
+                //Алгоритм Джарвиса
+                foreach (var i in Points)
+                {
+                    i.IsNotInside = false;
+                }
+                Shape A = Points[0];
+                foreach (var i in Points)
+                {
+                    if (i.Y > A.Y)
+                        A = i;
+                    if (i.Y == A.Y)
+                        if (i.X < A.X)
+                            A = i;
+                }
+                Shape F = A;
+                Shape M = new Circle(A.X - 10, A.Y);
+                double minCos = 1;
+                Shape P;
+                if (Points[0] == A)
+                    P = Points[1];
+                else
+                    P = Points[0];
+                double cos;
+                foreach (var i in Points)
+                {
+                    if (i != A && i != M)
+                    {
+                        double aX = M.X - A.X;
+                        double bX = i.X - A.X;
+                        double aY = M.Y - A.Y;
+                        double bY = i.Y - A.Y;
+                        cos = (aX * bX + aY * bY) / (Math.Sqrt(aX * aX + aY * aY) * Math.Sqrt(bX * bX + bY * bY));
+                        if (cos < minCos)
+                        {
+                            minCos = cos;
+                            P = i;
+                        }
+                    }
+                }
+                M = A;
+                A = P;
+                while (P != F)
+                {
+                    minCos = 1;
+                    if (Points[0] == A)
+                        P = Points[1];
+                    else
+                        P = Points[0];
+                    foreach (var i in Points)
+                    {
+                        if (i != A && i != M)
+                        {
+                            double aX = M.X - A.X;
+                            double bX = i.X - A.X;
+                            double aY = M.Y - A.Y;
+                            double bY = i.Y - A.Y;
+                            cos = (aX * bX + aY * bY) / (Math.Sqrt(aX * aX + aY * aY) * Math.Sqrt(bX * bX + bY * bY));
+                            if (cos < minCos)
+                            {
+                                minCos = cos;
+                                P = i;
+                            }
+                        }
+                    }
+                    A.IsNotInside = true;
+                    P.IsNotInside = true;
+                    M = A;
+                    A = P;
+                }
+            }
         }
     }
 }
