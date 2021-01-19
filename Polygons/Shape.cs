@@ -10,7 +10,7 @@ namespace Polygons
     abstract public class Shape
     {
         protected static int R;
-        protected static Color Color;
+        protected static Color color;
         protected int x, y, dx, dy;
         protected bool isMoving, isNotInside;
         public Shape(int x, int y)
@@ -25,7 +25,17 @@ namespace Polygons
         static Shape()
         {
             R = 20;
-            Color = Color.Blue;
+            color = Color.Blue;
+        }
+        public static int Radius
+        {
+            set { R = value; }
+            get { return R; }
+        }
+        public static Color Colour
+        {
+            set { color = value; }
+            get { return color; }
         }
         public bool IsNotInside { get { return isNotInside; } set { isNotInside = value; } }
         public bool IsMoving { get { return isMoving; }  set { isMoving = value; } }

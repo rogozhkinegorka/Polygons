@@ -18,7 +18,7 @@ namespace Polygons
             Point point3 = new Point(x + (int)(R * Math.Sqrt(3) / 2), y + R / 2);
             Point[] points = { point1, point2, point3 };
 
-            graphics.FillPolygon(new SolidBrush(Shape.Color), points);
+            graphics.FillPolygon(new SolidBrush(Shape.color), points);
         }
         public override bool IsInside(int xx, int yy)
         {

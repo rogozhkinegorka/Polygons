@@ -13,7 +13,7 @@ namespace Polygons
         { }
         public override void Draw(Graphics graphics)
         {
-            graphics.FillRectangle(new SolidBrush(Shape.Color), (int)(x - R / Math.Sqrt(2)), (int)(y - R / Math.Sqrt(2)), (int)(2 * R / Math.Sqrt(2)), (int)(2 * R / Math.Sqrt(2)));
+            graphics.FillRectangle(new SolidBrush(Shape.color), (int)(x - R / Math.Sqrt(2)), (int)(y - R / Math.Sqrt(2)), (int)(2 * R / Math.Sqrt(2)), (int)(2 * R / Math.Sqrt(2)));
         }
         public override bool IsInside(int x1, int y1)
         {

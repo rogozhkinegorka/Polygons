@@ -7,15 +7,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
+
 
 namespace Polygons
 {
+    public delegate void Del(int radius);
     public partial class Form1 : Form
     {
         enum PShape { C, S, T }
         enum Algoritm { byDefinition, Jarvis }
         PShape pointShape = PShape.C;
         bool isNotInside;
+        bool isDynamic = false;
         Algoritm convexHull = Algoritm.Jarvis;
         List<Shape> Points = new List<Shape>();
         public Form1()
@@ -474,6 +478,64 @@ namespace Polygons
                     A = P;
                 }
             }
+        }
+
+        private void playToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            playToolStripMenuItem.Text = isDynamic ? "Play" : "Stop";
+            isDynamic = !isDynamic;
+            timer1.Enabled = !timer1.Enabled;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            Random rnd = new Random();
+            for (int i = 0; i < Points.Count(); ++i)
+            {
+                Points[i].X += rnd.Next(-1, 2);
+                Points[i].Y += rnd.Next(-1, 2);
+            }
+            //Jarvis(Points, e.Graphics, true);
+            for (int i = 0; i < Points.Count; ++i)
+            {
+                if (!Points[i].IsNotInside)
+                {
+                    Points.RemoveAt(i);
+                    --i;
+                }
+            }
+            this.Refresh();
+        }
+        private void trackBar1_Scroll_1(object sender, EventArgs e)
+        {
+            timer1.Interval = 501-trackBar1.Value;
+        }
+
+        
+        void RadiusChange(int radius)
+        {
+            Shape.Radius = radius;
+            this.Refresh();
+        }
+        public static RadiusChangeForm RadiusForm;
+        private void radiusToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (RadiusForm == null)
+            {
+                RadiusForm = new RadiusChangeForm(RadiusChange);
+                RadiusForm.Show();
+            }
+            else
+            {
+                RadiusForm.WindowState = FormWindowState.Normal;
+                RadiusForm.Activate();
+            }
+        }
+
+        private void colourToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            colorDialog1.ShowDialog();
+            Shape.Colour = colorDialog1.Color;
         }
     }
 }

@@ -7,3 +7,4 @@ C:\Repos\Polygons\Polygons\obj\Debug\Polygons.Properties.Resources.resources
 C:\Repos\Polygons\Polygons\obj\Debug\Polygons.csproj.GenerateResource.cache
 C:\Repos\Polygons\Polygons\obj\Debug\Polygons.exe
 C:\Repos\Polygons\Polygons\obj\Debug\Polygons.pdb
+C:\Repos\Polygons\Polygons\obj\Debug\Polygons.RadiusChangeForm.resources

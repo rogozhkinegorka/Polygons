@@ -13,7 +13,7 @@ namespace Polygons
         { }
         public override void Draw(Graphics graphics)
         {
-            graphics.FillEllipse(new SolidBrush(Shape.Color), x-R, y-R, 2*R, 2*R);
+            graphics.FillEllipse(new SolidBrush(Shape.color), x-R, y-R, 2*R, 2*R);
         }
         public override bool IsInside(int x1, int y1)
         {
