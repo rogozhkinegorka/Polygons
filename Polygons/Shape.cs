@@ -4,14 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 
 namespace Polygons
 {
-    abstract public class Shape
+    [Serializable] abstract public class Shape
     {
         protected static int R;
         protected static Color color;
-        protected int x, y, dx, dy;
+        [NonSerialized] protected int x, y, dx, dy;
         protected bool isMoving, isNotInside;
         public Shape(int x, int y)
         {
@@ -25,7 +27,7 @@ namespace Polygons
         static Shape()
         {
             R = 20;
-            color = Color.Blue;
+            color = Color.Black;
         }
         public static int Radius
         {

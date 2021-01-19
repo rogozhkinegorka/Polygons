@@ -537,5 +537,15 @@ namespace Polygons
             colorDialog1.ShowDialog();
             Shape.Colour = colorDialog1.Color;
         }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new OpenFileDialog().ShowDialog();
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new SaveFileDialog().ShowDialog();
+        }
     }
 }
