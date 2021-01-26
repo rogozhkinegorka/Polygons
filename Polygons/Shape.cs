@@ -13,8 +13,8 @@ namespace Polygons
     {
         protected static int R;
         protected static Color color;
-        [NonSerialized] protected int x, y, dx, dy;
-        protected bool isMoving, isNotInside;
+        protected int x, y, dx, dy;
+        [NonSerialized] protected bool isMoving, isNotInside;
         public Shape(int x, int y)
         {
             this.x = x;
