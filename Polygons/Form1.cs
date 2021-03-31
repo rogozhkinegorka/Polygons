@@ -11,6 +11,7 @@ using System.Threading;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.Diagnostics;
 
 
 namespace Polygons
@@ -184,7 +185,7 @@ namespace Polygons
         }
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
-            changesSaved = true;
+            changesSaved = false;
             isNotInside = true;
             for (int j = Points.Count - 1; j >= 0; j--)
             {
@@ -488,6 +489,7 @@ namespace Polygons
 
         private void playToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            changesSaved = false;
             playToolStripMenuItem.Text = isDynamic ? "Play" : "Stop";
             isDynamic = !isDynamic;
             timer1.Enabled = !timer1.Enabled;
@@ -520,7 +522,7 @@ namespace Polygons
         
         void RadiusChange(int radius)
         {
-            changesSaved = true;
+            changesSaved = false;
             Shape.Radius = radius;
             this.Refresh();
         }
@@ -543,23 +545,76 @@ namespace Polygons
         {
             colorDialog1.ShowDialog();
             Shape.Colour = colorDialog1.Color;
-            changesSaved = true;
+            changesSaved = false;
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog OpenDialog = new OpenFileDialog();
-            BinaryFormatter bf = new BinaryFormatter();
-            if (OpenDialog.ShowDialog() == DialogResult.OK)
-            { 
-                FileStream fs = new FileStream(OpenDialog.FileName, FileMode.Open, FileAccess.Read);
-                Points = (List<Shape>)bf.Deserialize(fs);
-                Shape.Colour = (Color)bf.Deserialize(fs);
-                Shape.Radius = (int)bf.Deserialize(fs);
-                fileNamePath = OpenDialog.FileName;
-                fs.Close();
-                Refresh();
+            if (!changesSaved)
+            {
+                DialogResult result = MessageBox.Show("Вы хотите сохранить изменения?",
+                    "Сохранить?",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1);
+                if (result == DialogResult.Yes)
+                {
+                    saveToolStripMenuItem_Click(sender, e);
+                    OpenFileDialog OpenDialog = new OpenFileDialog();
+                    BinaryFormatter bf = new BinaryFormatter();
+                    if (OpenDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        FileStream fs = new FileStream(OpenDialog.FileName, FileMode.Open, FileAccess.Read);
+                        Points = (List<Shape>)bf.Deserialize(fs);
+                        Shape.Colour = (Color)bf.Deserialize(fs);
+                        Shape.Radius = (int)bf.Deserialize(fs);
+                        fileNamePath = OpenDialog.FileName;
+                        fs.Close();
+                        Refresh();
+                        if (RadiusForm != null)
+                            RadiusForm.OpenRadiusChange();
+                        changesSaved = true;
+                    }
+                }
+                if (result == DialogResult.No)
+                {
+                    //Form1.Show();
+                    OpenFileDialog OpenDialog = new OpenFileDialog();
+                    BinaryFormatter bf = new BinaryFormatter();
+                    if (OpenDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        FileStream fs = new FileStream(OpenDialog.FileName, FileMode.Open, FileAccess.Read);
+                        Points = (List<Shape>)bf.Deserialize(fs);
+                        Shape.Colour = (Color)bf.Deserialize(fs);
+                        Shape.Radius = (int)bf.Deserialize(fs);
+                        fileNamePath = OpenDialog.FileName;
+                        fs.Close();
+                        Refresh();
+                        if (RadiusForm != null)
+                            RadiusForm.OpenRadiusChange();
+                        changesSaved = true;
+                    }
+                }
             }
+            else
+            {
+                OpenFileDialog OpenDialog = new OpenFileDialog();
+                BinaryFormatter bf = new BinaryFormatter();
+                if (OpenDialog.ShowDialog() == DialogResult.OK)
+                {
+                    FileStream fs = new FileStream(OpenDialog.FileName, FileMode.Open, FileAccess.Read);
+                    Points = (List<Shape>)bf.Deserialize(fs);
+                    Shape.Colour = (Color)bf.Deserialize(fs);
+                    Shape.Radius = (int)bf.Deserialize(fs);
+                    fileNamePath = OpenDialog.FileName;
+                    fs.Close();                   
+                    Refresh();
+                    if (RadiusForm != null)
+                        RadiusForm.OpenRadiusChange();
+                    changesSaved = true;
+                }
+            }
+            
         }  
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -611,12 +666,58 @@ namespace Polygons
         {
             if (!changesSaved)
             {
-                DialogResult result = MessageBox.Show("сохранить?");
+                DialogResult result = MessageBox.Show("Вы хотите сохранить изменения?",
+                    "Сохранить?",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1);
+                if(result == DialogResult.Yes)
+                {
+                    changesSaved = true;
+                    saveToolStripMenuItem_Click(sender, e);
+                    Points.Clear();
+                    Shape.Radius = 20;
+                    Shape.Colour = Color.Black;
+                    fileNamePath = null;
+                    if (RadiusForm != null)
+                        RadiusForm.OpenRadiusChange();
+                }
+                if (result == DialogResult.No)
+                {
+                    changesSaved = true;
+                    Points.Clear();
+                    Shape.Radius = 20;
+                    Shape.Colour = Color.Black;
+                    fileNamePath = null;
+                    if (RadiusForm != null)
+                        RadiusForm.OpenRadiusChange();
+                }
             }
-            Points.Clear();
-            Shape.Radius = 20;
-            Shape.Colour = Color.Black;
-            fileNamePath = null;
+            else
+            {
+                Points.Clear();
+                Shape.Radius = 20;
+                Shape.Colour = Color.Black;
+                fileNamePath = null;
+                if (RadiusForm != null)
+                    RadiusForm.OpenRadiusChange();
+            }
+        }
+        private void Form1_FormClosing(Object sender, FormClosingEventArgs e)
+        {
+            if (!changesSaved)
+            {
+                DialogResult result = MessageBox.Show("Вы хотите сохранить изменения?",
+                    "Сохранить?",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1);
+                if (result == DialogResult.Yes)
+                {
+                    e.Cancel = true;
+                    saveToolStripMenuItem_Click(sender, e);
+                }
+            }
         }
     }
 }

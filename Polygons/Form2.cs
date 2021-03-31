@@ -20,6 +20,10 @@ namespace Polygons
             trackBar1.Value = Shape.Radius;
         }
 
+        public void OpenRadiusChange()
+        {
+            trackBar1.Value = Shape.Radius;
+        }
         private void Form2_Load(object sender, EventArgs e)
         {
             
